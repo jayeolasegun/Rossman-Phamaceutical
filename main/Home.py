@@ -2,21 +2,23 @@
 """
 Created on Sat Aug 22 12:01:42 2020
 
-@author: user
+@author: Jayeola Gbenga
+
 """
 
 
 import streamlit as st
-
-# import awesome_streamlit as ast
+import awesome_streamlit as ast
 
 
 # pylint: disable=line-too-long
 def write():
+    
     """Used to write the page in the app.py file"""
     with st.spinner("Loading Home ..."):
         # ast.shared.components.title_awesome("Rossmann Pharmaceuticals 💊🩸🩺🩹💉 ")
-        st.title('Rossmann Pharmaceuticals 💊🩸🩺🩹💉')
+        st.title('Rossmann Phamaceutical Sales Manager Dashboard')
+        
         st.write(
             """
             Rossman pharmaceuticals is an international pharamaceutical company with millions of stores acros the globe.
@@ -31,7 +33,9 @@ def write():
         # ast.shared.components.video_youtube(
         #     src="https://www.youtube.com/embed/B2iAodr0fOo"
         # )
-        st.image('ross.jpg', use_column_width=True)
+            
+            
+        #st.image('ross.jpg', use_column_width=True)
         st.write("""
         Like any other business entity, profits have to be made in order to send all employees home happy.
 

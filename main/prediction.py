@@ -2,7 +2,8 @@
 """
 Created on Sat Aug 22 12:01:44 2020
 
-@author: user
+@author: Jayeola Gbenga
+
 """
 
 # libraries
@@ -41,7 +42,7 @@ def write():
     """Used to write the page in the app.py file"""
     with st.spinner("Loading Data ..."):
         # ast.shared.components.title_awesome("Rossmann Pharmaceuticals 💊🩸🩺🩹💉 ")
-        st.title('Sales Predictions 💰 🛍️ 💳 💸')
+        st.title('Sales Predictions')
         st.write("""
         Predictions and the accuracy of the predictions.
         """)
@@ -51,21 +52,37 @@ def write():
     def load_preprocess_data():
 
         # load data
-        global train_features, test_features, train_target, full_test, full_train, train, test, store, submission, categorical, numerical
-        na_value=['',' ','nan','Nan','NaN','na', '<Na>']
-        train = pd.read_csv('src/pages/train.csv', na_values=na_value)
-        test = pd.read_csv('src/pages/test.csv', na_values=na_value)
-        store = pd.read_csv('src/pages/store.csv', na_values=na_value)
-        submission = pd.read_csv('src/pages/sample_submission.csv', na_values=na_value)
-        full_train = pd.merge(left = train, right = store, how = 'inner', left_on = 'Store', right_on = 'Store')
-        full_test = pd.merge(left = test, right = store, how = 'inner', left_on = 'Store', right_on = 'Store')  
-
-        # '''preprocessing'''
+        global train_features, test_features, train_target, test_df, train_df, train, test, store, submission, categorical, numerical
         
-        # train and target features
-        train_features = full_train.drop(['Sales', 'Customers'], axis = 1) #drop the target feature + customers (~ will not be used for prediction)
-        train_target  = full_train[['Sales']]
-        test_features = full_test.drop(['Id'], axis = 1) #drop id, it's required only during submission
+        train = pd.read_csv('data/train.csv')
+        test = pd.read_csv('data/test.csv')
+        store = pd.read_csv('data/store.csv')
+        submission = pd.read_csv('data/sample_submission.csv')
+        
+        train_df = pd.merge(left = train, right = store, how = 'inner', left_on = 'Store', right_on = 'Store')
+        test_df = pd.merge(left = test, right = store, how = 'inner', left_on = 'Store', right_on = 'Store') 
+        
+        
+        
+        # drop rows where sales was 0 and store was closed
+        
+        train_df['StateHoliday'] = train_df['StateHoliday'].replace({'0':'None',0 :'None'}) 
+            
+        train_df = train_df[(train_df['Sales'] != 0) & (train_df['Open'] != 0)]
+        
+        
+            
+    
+    
+        
+        # separate dataframe into train and target features
+        
+        # drop CompetitionOpenSinceYear and CompetitionOpenSinceMonth
+        
+        train_features = train_df.drop(['Sales','CompetitionOpenSinceMonth','CompetitionOpenSinceYear','Customers'], axis = 1) #drop the target feature + customers (~ will not be used for prediction)
+        train_target  = train_df[['Sales']]
+        
+        test_features = test_df.drop(['Id'], axis = 1) #drop id, it's required only during submission
         
         #feature generation + transformations
         train_features['Date'] = pd.to_datetime(train_features.Date)
@@ -110,8 +127,9 @@ def write():
         features = pd.concat([train_features, test_features]) #merge the features columns for uniform preprocessing
 
         # change dtypes for uniformity in preprocessing
-        features.CompetitionOpenSinceMonth = features.CompetitionOpenSinceMonth.astype('Int64') 
-        features.CompetitionOpenSinceYear = features.CompetitionOpenSinceYear.astype('Int64')
+        #features.CompetitionOpenSinceMonth = features.CompetitionOpenSinceMonth.astype('Int64') 
+        #features.CompetitionOpenSinceYear = features.CompetitionOpenSinceYear.astype('Int64')
+        
         features.Promo2SinceWeek = features.Promo2SinceWeek.astype('Int64') 
         features.Promo2SinceYear = features.Promo2SinceYear.astype('Int64')
         features["StateHoliday"].loc[features["StateHoliday"] == 0] = "0"
@@ -120,8 +138,10 @@ def write():
         
         # ''' actual preprocessing: the mighty pipeline '''
         # numeric
-        for col in ['CompetitionDistance', 'CompetitionOpenSinceMonth', 'CompetitionOpenSinceYear', 'Promo2SinceWeek', 'Promo2SinceYear']:
+        for col in ['CompetitionDistance', 'Promo2SinceWeek', 'Promo2SinceYear']:
             features[col] = features[col].fillna((int(features[col].mean()))) 
+            
+            
         features.PromoInterval = features.PromoInterval.fillna(features.PromoInterval.mode()[0])
         features.Open = features.Open.fillna(features.Open.mode()[0])
         features = pd.get_dummies(features, columns=['StoreType', 'Assortment', 'PromoInterval', 'StateHoliday'], drop_first=True)
@@ -156,9 +176,10 @@ def write():
         # my_pipeline = Pipeline(steps=[('preprocessor', preprocessor) ])
         # transformed_features = my_pipeline.fit_transform(features)
         # features = pd.DataFrame(transformed_features)
+        
         scaler = RobustScaler()
-        c = ['DayOfWeek', 'Open', 'Promo', 'SchoolHoliday', 'CompetitionDistance', 'CompetitionOpenSinceMonth', 'CompetitionOpenSinceYear',
-        'Promo2', 'Promo2SinceWeek', 'Promo2SinceYear', 'WeekOfYear', 'Month', 'Year', 'Day', 'WeekOfYear', 'weekday']
+       # c = ['DayOfWeek', 'Open', 'Promo', 'SchoolHoliday', 'CompetitionDistance',
+        #'Promo2', 'Promo2SinceWeek', 'Promo2SinceYear', 'WeekOfYear', 'Month', 'Year', 'Day', 'WeekOfYear', 'weekday']
         features[numerical] = scaler.fit_transform(features[numerical].values)
         
 
@@ -230,7 +251,7 @@ def write():
 
     st.sidebar.title("Predictions")
     st.sidebar.subheader("Choose Model")
-    regressor = st.sidebar.selectbox("Regressor", ("Random Forest Regressor", "eXtreme Gradient Boosting(XGB)", "Gradient Boosting"))
+    regressor = st.sidebar.selectbox("Regressor", ("Random Forest Regressor","Gradient Boosting"))
     
     
     def display_metrics(metrics_list):
@@ -267,13 +288,13 @@ def write():
             # if st.sidebar.checkbox("Show predicted data", True):
             st.subheader("Rossmann Pharmaceuticals sales predictions")
             # size = st.sidebar.number_input("n_rows", 1, 2000, step=7, key='number of rows')
-            sub = full_test[['Id']]
+            sub = test_df[['Id']]
             back = np.expm1(predictions)
             sub['Sales'] = back
             # sub = sub.sort_values(by = 'Id', ascending = True)
-            sub['Date'] = full_test.Date.to_list()
+            sub['Date'] = test_df.Date.to_list()
             sub.to_csv('sub.csv', index = False)
-            sub['Store'] = full_test.Store.to_list()
+            sub['Store'] = test_df.Store.to_list()
             sub['Date'] = pd.to_datetime(sub['Date'])
             start_date = st.sidebar.date_input('start date', datetime.date(2015,8,1))
             end_date = st.sidebar.date_input('end date', datetime.date(2015,9,20))
@@ -283,46 +304,7 @@ def write():
 
     # xgb
     # global y_pred
-    if regressor == 'eXtreme Gradient Boosting(XGB)r':
-        st.sidebar.subheader("Model Hyperparameters")
-        #choose parameters
-        eval_metric = st.sidebar.radio("eval_metric", ("rmse", "mae"), key='eval_metric')
-        booster = st.sidebar.radio("booster", ("gbtree", "gblinear"), key='booster')
 
-        metrics = st.sidebar.multiselect("What metrics to display?", ('Mean Absolute Error', 'Mean Squared Error'))
-        
-        if st.sidebar.button("Predict", key='predict'):
-            st.subheader("eXtreme Gradient Boosting(XGB)")
-            model = XGBRegressor(eval_metric=eval_metric, booster=booster, random_state = 42)
-            model.fit(x_train, y_train)
-            y_pred = model.predict(x_val)
-            st.write("Mean Absolute Error: ", mean_absolute_error(y_val, y_pred).round(4))
-            st.write("Mean Squared Error: ", mean_squared_error(y_val, y_pred).round(4))
-            display_metrics(metrics)
-            predictions = model.predict(x_test)
-
-            # if st.sidebar.checkbox("Show predicted data", True):
-            st.subheader("Rossmann Pharmaceuticals sales predictions")
-            # size = st.sidebar.number_input("n_rows", 1, 2000, step=7, key='number of rows')
-            sub = full_test[['Id']]
-            back = np.expm1(predictions)
-            sub['Sales'] = back
-            # sub = sub.sort_values(by = 'Id', ascending = True)
-            sub['Date'] = full_test.Date.to_list()
-            sub['Store'] = full_test.Store.to_list()
-            sub['Date'] = pd.to_datetime(sub['Date'])
-            # sub.to_csv('sub.csv', index = False)
-            sub['Store'] = full_test.Store.to_list()
-            sub['Date'] = pd.to_datetime(sub['Date'])
-            start_date = st.sidebar.date_input('start date', datetime.date(2015,8,1))
-            end_date = st.sidebar.date_input('end date', datetime.date(2015,9,20))
-            mask = (sub['Date'] > start_date) & (sub['Date'] <= end_date)
-            dis = sub.loc[mask]
-            st.write(dis)
-
-
-    # grad boost
-    # global y_pred
     if regressor == 'Gradient Boosting':
         st.sidebar.subheader("Model Hyperparameters")
 
@@ -341,19 +323,21 @@ def write():
             # if st.sidebar.checkbox("Show predicted data", True):
             st.subheader("Rossmann Pharmaceuticals sales predictions")
             # size = st.sidebar.number_input("n_rows", 1, 2000, step=7, key='number of rows')
-            sub = full_test[['Id']]
+            sub = test_df[['Id']]
             back = np.expm1(predictions)
             sub['Sales'] = back
             # sub = sub.sort_values(by = 'Id', ascending = True)
-            sub['Date'] = full_test.Date.to_list()
+            sub['Date'] = test_df.Date.to_list()
             # sub.to_csv('sub.csv', index = False)
-            sub['Store'] = full_test.Store.to_list()
+            sub['Store'] = test_df.Store.to_list()
             sub['Date'] = pd.to_datetime(sub['Date'])
             start_date = st.sidebar.date_input('start date', datetime.date(2015,8,1))
             end_date = st.sidebar.date_input('end date', datetime.date(2015,9,20))
             mask = (sub['Date'] > start_date) & (sub['Date'] <= end_date)
             dis = sub.loc[mask]
             st.write(dis)
+
+   
   
 
     # # display raw data
@@ -375,8 +359,8 @@ def write():
     #     st.write(sub.head(size))
 
         
-if __name__ == '__main__':
-    main()
+#if __name__ == '__main__':
+#    main()
 
 
     

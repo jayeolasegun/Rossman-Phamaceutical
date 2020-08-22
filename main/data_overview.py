@@ -2,7 +2,7 @@
 """
 Created on Sat Aug 22 12:01:43 2020
 
-@author: user
+@author: Jayeola Gbenga
 """
 
 import streamlit as st
@@ -13,21 +13,26 @@ import pandas as pd
 
 # pylint: disable=line-too-long
 def write():
+    
     """Used to write the page in the app.py file"""
+    
     with st.spinner("Loading Data ..."):
+        
         # ast.shared.components.title_awesome("Rossmann Pharmaceuticals 💊🩸🩺🩹💉 ")
-        st.title('Data description  ⓿ ➀ ➁ ➂ 🔢 ')
+        st.title('Data description')
+        
         st.write("""
-        Most of the data fields are easy to understand, but just to highlight some of the features present:
-        **Store, Date, Sales, Customers, Open, State Holiday, School Holiday, Store Type, Assortment, Competition and Promotion.**
-
-        The *Store Type, Assortment, Competition* and *Promotion* features are store tailored.
-
-        The *Sales, Customers, Open, State Holiday* and *School Holiday* features vary across the stores with days.
+        The  Data contains Sales, Customers, Promo and Holiday information for 1115 Stores 
+        oF Rossmann Phamaceuticals 
+    
+            
         """)
-        na_value=['',' ','nan','Nan','NaN','na', '<Na>']
-        train = pd.read_csv('src/pages/train.csv', na_values=na_value)
-        store = pd.read_csv('src/pages/store.csv', na_values=na_value)
-        full_train = pd.merge(left = train, right = store, how = 'inner', left_on = 'Store', right_on = 'Store')
-        st.write(full_train.sample(20))
+        
+        
+        
+        train = pd.read_csv('data/train.csv')
+        store = pd.read_csv('data/store.csv')
+        train_df = pd.merge(left = train, right = store, how = 'inner', on = 'Store').set_index('Date')
+        
+        st.write(train_df.sample(50))
 
