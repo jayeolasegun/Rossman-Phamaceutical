@@ -1,9 +1,8 @@
-# Rossman-Phamaceutical
-
 <!-- Add banner here -->
 
 # Project Title
 
+# Rossman-Phamaceutical
 <!-- Add buttons here -->
 
 <!-- Describe your project in brief -->
@@ -41,7 +40,7 @@ I use [**Shields IO**](https://shields.io/) for making badges. It is a simple an
 
 ![Tweet](https://img.shields.io/twitter/url?style=flat-square&logo=twitter&url=https%3A%2F%2Fnavendu.me%2Fnsfw-filter%2Findex.html): This is not essential but it is a cool way to let others know about your project! Clicking this button automatically opens twitter and writes a tweet about your project and link to it. All the user has to do is to click tweet. Isn't that neat? -->
 
-# Demo-Preview
+<!-- # Demo-Preview
 
 <!-- Add a demo for your project -->
 
@@ -58,7 +57,7 @@ Here is a random GIF as a placeholder.
 Here is a sample TOC(*wow! such cool!*) that is actually the TOC for this README. -->
 
 - [Project Title](#project-title)
-- [Demo-Preview](#demo-preview)
+<!-- - [Demo-Preview](#demo-preview) -->
 - [Table of contents](#table-of-contents)
 - [Installation](#installation)
 - [Usage](#usage)
