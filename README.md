@@ -4,7 +4,7 @@
 
 # Rossman-Phamaceutical
 <!-- Add buttons here -->
-
+build and serve an end-to-end product that delivers this prediction to Analysts in the finance team. 
 <!-- Describe your project in brief -->
 
 <!-- The project title should be self explanotory and try not to make it a mouthful. (Although exceptions exist- **awesome-readme-writing-guide-for-open-source-projects** - would have been a cool name)
@@ -70,6 +70,10 @@ Here is a sample TOC(*wow! such cool!*) that is actually the TOC for this README
 
 # Installation
 [(Back to top)](#table-of-contents)
+- Python
+- Scikit learn
+- Streamlit
+- Heroku
 
 <!-- *You might have noticed the **Back to top** button(if not, please notice, it's right there!). This is a good idea because it makes your README **easy to navigate.*** 
 
